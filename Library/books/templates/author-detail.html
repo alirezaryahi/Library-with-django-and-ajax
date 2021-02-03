@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="vazir mt-5 d-flex direction">
+    <div class="col-md-4 col-sm-12">
+        <div class="ui card pb-3">
+            <div class="image">
+                <img src="{{author.image.url}}">
+            </div>
+            <div class="content">
+                <h4 class="description text-center">
+                    {{author.name}}
+                </h4>
+            </div>
+            <div class=" text-center">
+                <a>
+                    تعداد کتاب های موجود : {{author.books.count}}
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 col-sm-12">
+        <div class="p-4 text-align">
+            <div class="shadow p-3">{{author.about}}</div>
+
+            <table class="ui celled table">
+                <thead>
+                <tr>
+                    <th class="border-left">شماره شناسه</th>
+                    <th>عنوان</th>
+                    <th>موضوع</th>
+                    <th>نویسنده</th>
+                    <th>موجود / ناموجود</th>
+                    {% if request.user.is_authenticated and not request.user.is_superuser %}
+                    <th>درخواست</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for book in author.books.all %}
+                <tr>
+                    <td class="text-center border-left">{{book.id}}</td>
+                    <td>{{book.title}}</td>
+                    <td>{{book.subject}}</td>
+                    <td>{{book.author}}</td>
+                    <td class="text-center">
+                        <i class=" {% if book.available %}check{% else %}x text-danger{% endif %} icon"></i>
+                    </td>
+                    {% if request.user.is_authenticated and not request.user.is_superuser %}
+                    <td>
+                        <a href="order-book/{{book.id}}"
+                           class="btn btn-success {% if not book.available %}disable{% endif %}">درخواست</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

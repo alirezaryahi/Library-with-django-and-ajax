@@ -1,0 +1,45 @@
+{% load static %}
+{% load render_partial %}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- jQuery -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+    <!--Custom css ADD HERE-->
+    <link rel="stylesheet" type='text/css' href="{% static 'css/style.css' %}">
+    <!-- semantic UI -->
+    <link rel="stylesheet" type='text/css'
+          href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.14/semantic.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+
+    {% block style %}{% endblock %}
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+<body>
+
+
+
+{% render_partial 'navbar' %}
+<img src="{% static 'img/online-bookstore.jpg' %}" class="main-img">
+<div class="ui container">
+    {% block content %}
+    {% endblock content %}
+</div>
+
+{% block scripts %}
+
+{% endblock scripts %}
+
+<!--Custom js ADD HERE-->
+<script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<div class="ui tiny menu pr-10 pl-10 pb-0">
+    <a href="/" class="item">
+        <b>صفحه اصلی</b>
+    </a>
+    {% if user.is_authenticated %}
+    <div class="ui dropdown item">
+        <b>کتاب ها &nbsp;<i class="dropdown icon"></i></b>
+        <div class="menu">
+            {% for subject in subjects %}
+            <a href="/books/{{subject.title.split|join:'-'}}"
+               class="item">{{subject.title}}</a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="border-left menu">
+        <div class="ui dropdown item">
+            <b>کتاب ها &nbsp;<i class="dropdown icon"></i></b>
+            <div class="menu">
+                {% for subject in subjects %}
+                <a href="/books/{{subject.title.split|join:'-'}}"
+                   class="item">{{subject.title}}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="{%if not user.is_authenticated %}right{% endif %} menu author">
+        <a href="{% url 'authors' %}" class="item">
+            <b>لیست نویسندگان</b>
+        </a>
+    </div>
+    {% if user.is_authenticated and user.is_superuser %}
+    <div class="menu">
+        <a href="{% url 'user-list' %}" class="item">
+            <b>لیست کاربران</b>
+        </a>
+    </div>
+    <div class="right menu border-right">
+        <a href="{% url 'add-book' %}" class="item" onclick="openAddBook()">
+            <b>افزودن کتاب</b>
+        </a>
+    </div>
+    {% elif user.is_authenticated and not user.is_superuser %}
+    <div class="right menu">
+        <a href="{% url 'order-status' %}" class="item">
+            <b>وضعیت</b>
+        </a>
+    </div>
+    {% endif %}
+    <div class="menu ml-3 mt-1">
+        <div class="ui category search">
+            <form action="/search" autocomplete="off">
+                <div class="ui icon input">
+                    <input class="prompt text-right vazir" type="text" name="q" id="id_input" onkeyup="searchOpen()"
+                           placeholder="جستجو ...">
+                    <i class="search icon"></i>
+                </div>
+                <div class="result"></div>
+            </form>
+        </div>
+    </div>
+    <div class="menu">
+        {% if request.user.is_authenticated %}
+        <div class="item">
+            <div class="ui red button font"><a href="/log_out" class="text-white">خروج</a></div>
+        </div>
+        <div class="item">
+            <span class="vazir"><b> سلام <a href="{% url 'change-profile' %}">{{request.user.username}}</a> !</b></span>
+        </div>
+        {% else %}
+        <div class="item">
+            <div class="ui primary button font"><a href="/register" class="text-white">ثبت نام</a></div>
+        </div>
+        <div class="item">
+            <div class="ui button font"><a href="/user-admin-login">ورود</a></div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function searchOpen() {
+        let value = $('#id_input').val();
+        $.ajax({
+            url: 'autocomplete-search',
+            data: {'query': value},
+            type: 'GET',
+            success: function (response) {
+                $('.ui.search')
+                    .search({
+                        source: response
+                    })
+            },
+            async: false
+        });
+    }
+
+    function openAddBook(e) {
+        console.log('salam')
+    }
+</script>

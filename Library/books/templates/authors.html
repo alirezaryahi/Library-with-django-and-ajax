@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<table class="ui celled table">
+    <thead>
+    <tr>
+        <th class="border-left text-center">تصویر</th>
+        <th class="border-left text-center">نام</th>
+        <th class="text-center">جزییات</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for author in authors %}
+    <tr>
+        <td class="border-left text-center"><img src="{{author.image.url}}" width="100" height="100" alt=""></td>
+        <td class="border-left text-center"><h3 class="pt-5">{{author.name}}</h3></td>
+        <td class="text-center"><a href="detail/{{author.name.split|join:'-'}}" class="btn btn-success vazir mt-5">مشاهده جزییات</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

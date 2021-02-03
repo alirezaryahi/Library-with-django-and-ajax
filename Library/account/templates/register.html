@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    .ui.green {
+        font-family: Vazir !important;
+    }
+
+    form {
+        text-align: right;
+    }
+
+    .direction {
+        direction: rtl;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="w-50 mr-auto ml-auto mt-5 bg-light pt-4 pb-4">
+    <h1 class="vazir text-center">فرم ثبت نام کاربر</h1>
+    <br>
+    <form action="" method="post" class="w-50 mr-auto ml-auto">
+        {% csrf_token %}
+        {{form.as_p}}
+        <br>
+        <input type="submit" class="ui green button" name="user" value="ثبت نام">
+    </form>
+</div>
+
+{% endblock %}

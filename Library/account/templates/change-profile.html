@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    .btn.btn-info {
+        font-family: Vazir !important;
+    }
+
+    form {
+        text-align: right;
+    }
+
+    .direction {
+        direction: rtl;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="w-50 ml-auto mr-auto mt-5 bg-light pt-4 pb-4">
+    <h1 class="vazir text-center">فرم ویرایش اطلاعات کاربر</h1>
+    <br>
+    <form class="w-50 mr-auto ml-auto" action="" method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input type="submit" class="btn btn-info text-white" value="ویرایش">
+    </form>
+</div>
+{% endblock %}

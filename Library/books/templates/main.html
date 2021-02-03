@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    .mymodal {
+        height: 350px;
+        top: 200px !important;
+        font-size: 20px !important;
+    }
+
+    .mymodal.delete {
+        height: 200px !important;
+    }
+
+    .disable {
+        pointer-events: none;
+        cursor: default;
+        color: #ccc;
+    }
+
+    .btn.btn-danger.mr-5 {
+        height: 40px;
+        width: 80px;
+    }
+</style>
+{% endblock %}
+
+
+{% block content%}
+
+<div class="ui modal update mymodal">
+    <i class="close icon"></i>
+    <div class="header vazir text-center">
+        ویرایش کتاب
+    </div>
+    <div class="image content">
+        <div class="description">
+            <form action="" method="post" name="update" class="ui form direction w-50 mr-auto ml-auto vazir">
+                {% csrf_token %}
+                <input class="form-control vazir" id="title" type="text"><br>
+                <select class="form-control vazir" id="subject"></select><br>
+                <select class="form-control vazir" id="author"></select><br>
+                <input class="float-right" type="checkbox" id="available"> &nbsp;<p class="float-right mt-0 mr-3">موجود
+                / ناموجود</p> <br>
+                <div class="actions">
+                    <button type="submit" class="ui positive right labeled icon button vazir">
+                        ویرایش
+                        <i class="checkmark icon"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="ui modal delete mymodal">
+    <i class="close icon"></i>
+    <div class="header vazir text-center">
+        حدف کتاب
+    </div>
+    <div class="image content">
+        <div class="description">
+            <form action="" name="delete" method="post" class="ui form d-flex direction">
+                {% csrf_token %}
+                <h2 class="vazir text-right">آیا مطمین هستید که میخواهید کتاب مورد نظر را پاک کنید ؟</h2>
+                <button type="submit" class="btn btn-danger vazir mr-5 mt-4">
+                    بله
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<table class="ui celled table">
+    <thead>
+    {% if books or page_obj or subjects %}
+    <tr>
+        <th class="border-left text-center">شماره شناسه</th>
+        <th>عنوان</th>
+        <th>موضوع</th>
+        <th>نویسنده</th>
+        <th class="text-center">موجود / ناموجود</th>
+        {% if request.user.is_authenticated and not request.user.is_superuser %}
+        <th>درخواست</th>
+        {% elif request.user.is_superuser %}
+        <th class="text-center">تغییرات</th>
+        {% endif %}
+    </tr>
+    {% else %}
+    <tr>
+        <th class="border-left text-center">تصویر</th>
+        <th class="border-left text-center">نام</th>
+        <th class="text-center">جزییات</th>
+    </tr>
+    {% endif %}
+    </thead>
+    <tbody>
+    {% if page_obj %}
+    {% for book in page_obj %}
+    <tr id="row{{book.id}}">
+        <td class="text-center border-left">{{book.id}}</td>
+        <td id="title{{book.id}}">{{book.title}}</td>
+        <td id="subject{{book.id}}">{{book.subject}}</td>
+        <td id="author{{book.id}}">{{book.author}}</td>
+        <td class="text-center">
+            <i id="available{{book.id}}"
+               class=" {% if book.available %}check{% else %}x text-danger{% endif %} icon"></i>
+        </td>
+        {% if request.user.is_authenticated and not request.user.is_superuser %}
+        <td>
+            <a href="order-book/{{book.id}}" class="btn btn-success {% if not book.available %}disable{% endif %}">درخواست</a>
+        </td>
+        {% elif request.user.is_superuser %}
+        <td>
+            <input type="hidden" value="{{book.id}}" name="book_id">
+            <button class="btn btn-warning vazir" name="{{book.id}}">ویرایش</button>
+            <button class="btn btn-danger vazir mr-2" name="{{book.id}}">حذف</button>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    {% elif books %}
+    {% for book in books %}
+    <tr>
+        <td class="text-center border-left">{{book.id}}</td>
+        <td>{{book.title}}</td>
+        <td>{{book.subject}}</td>
+        <td>{{book.author}}</td>
+        <td class="text-center">
+            <i class=" {% if book.available %}check{% else %}x text-danger{% endif %} icon"></i>
+        </td>
+        {% if request.user.is_authenticated and not request.user.is_superuser %}
+        <td>
+            <a href="order-book/{{book.id}}" class="btn btn-success {% if not book.available %}disable{% endif %}">درخواست</a>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    {% elif authors %}
+    {% for author in authors %}
+    <tr>
+        <td class="border-left text-center"><img src="{{author.image.url}}" width="100" height="100" alt=""></td>
+        <td class="border-left text-center"><h3 class="pt-5">{{author.name}}</h3></td>
+        <td class="text-center"><a href="detail/{{author.name.split|join:'-'}}" class="btn btn-success vazir mt-5">مشاهده
+            جزییات</a></td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+    </tbody>
+</table>
+
+{% if page_obj %}
+<div class="d-flex vazir">
+    <div class="col-sm-12 text-center">
+        <ul class="pagination w-25 mr-auto ml-auto pl-5">
+            {% if page_obj.has_previous %}
+            <li><a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}"><b>قبلی</b></a>
+            </li>
+            {% endif %}
+
+            {% for page in paginator.page_range %}
+            {% if page == page_obj.number %}
+            <li class=""><a class="page-link bg-warning"
+                            href="?page={{ page }}"><b>{{ page }}</b></a>
+            </li>
+            {% else %}
+            <li><a class="page-link"
+                   href="?page={{ page }}"><b>{{ page }}</b></a></li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li><a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}"><b>بعدی</b></a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ---------------------get data to show in update form ------------------------------
+
+    $('.btn.btn-warning').click(function () {
+        let book_id = $(this).attr('name');
+        console.log(book_id)
+        $.ajax({
+            url: 'book-update',
+            data: {'query': book_id},
+            type: 'GET',
+            success: function (res) {
+                $('form[name=update]').find('input#id').remove()
+                $('<input>').attr({'type': 'hidden', 'value': res.id, 'id': 'id'}).appendTo('form[name=update]');
+                $('#title').val(res.title)
+                $('#subject').find('option').remove().end()
+                $('#author').find('option').remove().end()
+                console.log($('#id').val())
+                for (let i = 0; i < res.subjects.length; i++) {
+                    $("#subject").append(new Option(res.subjects[i], res.subjects[i]));
+                }
+                for (let i = 0; i < res.authors.length; i++) {
+                    $("#author").append(new Option(res.authors[i], res.authors[i]));
+                }
+                $("#subject").find(`option[value="${res.subject}"]`).attr("selected",true);
+                $("#author").find(`option[value="${res.author}"]`).attr("selected",true);
+                if (res.available == true) {
+                    $('#available').prop('checked', true);
+                } else {
+                    $('#available').prop('checked', false);
+                }
+            }
+        });
+        $('.ui.modal.update').modal('show');
+    })
+
+    //------------------------------------------------------------------------------------
+
+    //---------------------------send data to view for update-----------------------------
+
+    $('form[name=update]').submit(function (e) {
+        e.preventDefault()
+        let id = $('#id').val()
+        let token = '{{csrf_token}}'
+        let title = $('#title').val()
+        let subject = $('#subject option:selected').text()
+        let author = $('#author option:selected').text()
+        let available = $("input[type='checkbox']").prop('checked');
+        console.log(id)
+        $.ajax({
+            url: 'book-update-done',
+            data: {
+                'id': id,
+                'title': title,
+                'subject': subject,
+                'author': author,
+                'available': available,
+                csrfmiddlewaretoken: token
+            },
+            type: 'POST',
+            success: function (res) {
+                console.log(res)
+                let available
+                if (res.available) {
+                    available = true
+                } else {
+                    available = false
+                }
+                $(`td[id=title${id}]`).text(res.title)
+                $(`td[id=subject${id}]`).text(res.subject)
+                $(`td[id=author${id}]`).text(res.author)
+                if (available) {
+                    $(`#available${id}`).attr('class', 'check icon');
+                } else {
+                    $(`#available${id}`).attr('class', 'x text-danger icon');
+                }
+            }
+        });
+    })
+
+    //-----------------------------------------------------------------------------------
+
+    //-----------------------------get data to show in delete book ------------------------------------------
+
+    $('.btn.btn-danger').click(function () {
+        let book_id = $(this).attr('name');
+        $.ajax({
+            url: 'book-delete',
+            data: {'query': book_id},
+            type: 'GET',
+            success: function (res) {
+                $('<input>').attr({'type': 'hidden', 'value': res.id, 'id': 'id'}).appendTo('form[name=delete]');
+            }
+        });
+        $('.ui.modal.delete').modal('show');
+    })
+
+    //-----------------------------------------------------------------------------------
+
+    //---------------------------send data to view for delete-----------------------------
+
+    $('form[name=delete]').submit(function (e) {
+        e.preventDefault()
+        let id = $('#id').val()
+        let token = '{{csrf_token}}'
+        $.ajax({
+            url: 'book-delete_done',
+            data: {'id': id, csrfmiddlewaretoken: token},
+            type: 'POST',
+            success: function (res) {
+                if (res.done.length) {
+                    $(`#row${id}`).remove()
+                }
+                $('.ui.modal.delete').modal('hide');
+            }
+        });
+    })
+
+    //-----------------------------------------------------------------------------------
+</script>
+{% endblock scripts %}

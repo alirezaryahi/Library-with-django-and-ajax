@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    td.text-center {
+        position: relative !important;
+    }
+
+    button[type=submit] {
+        height: 40px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content%}
+
+<table class="ui celled table">
+    <thead>
+    <tr>
+        <th class="border-left">شماره شناسه</th>
+        <th>نام</th>
+        <th>نام خانوادگی</th>
+        <th>نام کاربری</th>
+        <th>ایمیل</th>
+        <th>تاریخ عضویت</th>
+        <th>تاریخ اخرین لاگین</th>
+        <th>مسدود</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+    <tr>
+        <td class="text-center border-left">{{user.id}}</td>
+        <td>{{user.first_name}}</td>
+        <td>{{user.last_name}}</td>
+        <td>{{user.username}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.date_joined}}</td>
+        <td>{{user.last_login}}</td>
+        <td class="text-center">
+            <form action="{% url 'active-deactive' %}" name="active" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value={{user.id}}>
+                <input type='hidden' name='token' value='{{csrf_token}}'/>
+
+                <button type="submit" class="bg-white border-0 w-100"></button>
+                {% if user.is_active == 1 %}
+                <input type="checkbox">
+                {% else %}
+                <input type="checkbox" checked>
+                {% endif %}
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

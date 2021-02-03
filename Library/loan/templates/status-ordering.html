@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<table class="ui celled table">
+    <thead>
+    <tr>
+        <th>عنوان</th>
+        <th>تاریخ شروع</th>
+        <th>تاریخ پایان</th>
+        <th>مهلت استفاده</th>
+        <th>تمدید</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in items %}
+    <tr>
+        <td>{{item.book}}</td>
+        <td>{{item.carry}}</td>
+        <td>{{item.bring}}</td>
+        <td class="vazir">{{item.remainingTime|slice:2}} روز</td>
+        <td><a href="order-book/{{item.book_id}}" class="btn btn-warning vazir">تمدید</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

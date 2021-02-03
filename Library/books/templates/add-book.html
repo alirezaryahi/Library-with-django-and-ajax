@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class=" pb-5">
+    {% if error != '' %}
+    <div class="alert alert-danger text-center mt-5"><b class="vazir">{{error}}</b></div>
+    {% endif %}
+    <form action="" method="post" class="direction w-50 mr-auto ml-auto mt-5 p-4 border vazir text-right">
+        <h1 class="vazir text-center">فرم افزودن کتاب</h1>
+        {% csrf_token %}
+        {{form}}
+        <br>
+        <button type="submit" class="btn btn-success vazir">افزودن</button>
+    </form>
+</div>
+
+{% endblock %}

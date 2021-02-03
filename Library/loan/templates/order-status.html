@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load jalali_tags %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css' %}">
+<script src="{% static 'admin/js/django_jalali.min.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+<table class="ui celled table">
+    <thead>
+    <tr>
+        <th>عنوان</th>
+        <th>نام کاربری</th>
+        <th>تاریخ شروع</th>
+        <th>تاریخ پایان</th>
+        <th>ثبت نهایی</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <form action="" method="post">
+            {% csrf_token%}
+            <td>{{form.book}}</td>
+            <td>{{form.user}}</td>
+            <td>{{form.carry}}</td>
+            <td>{{form.bring}}</td>
+            <td>
+                <button type="submit" class="vazir btn btn-success">ثبت نهایی</button>
+            </td>
+        </form>
+    </tr>
+    </tbody>
+</table>
+{% if error %}
+<div class="alert alert-danger text-center"><h3>{{error}}</h3></div>
+{% endif %}
+{% endblock %}

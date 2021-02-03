@@ -1,0 +1,94 @@
+<!--{% extends 'base.html' %}-->
+
+
+
+<!--{% block style %}-->
+    <!--<style>-->
+        <!--.mymodal {-->
+            <!--height: 300px !important;-->
+            <!--top: 200px !important;-->
+            <!--font-size: 20px !important;-->
+        <!--}-->
+
+        <!--.mt-3 {-->
+            <!--margin-top: 20px;-->
+        <!--}-->
+    <!--.ui .header{-->
+        <!--font-size: 18px !important;-->
+    <!--}-->
+    <!--</style>-->
+<!--{% endblock %}-->
+
+<!--{% block title %}-->
+    <!--My Profile-->
+<!--{% endblock title %}-->
+
+
+<!--{% block content %}-->
+    <!--<div class="ui modal mymodal">-->
+        <!--<i class="close icon"></i>-->
+        <!--<div class="header vazir">-->
+            <!--ویرایش کتاب-->
+        <!--</div>-->
+        <!--<div class="image content">-->
+            <!--<div class="description">-->
+                <!--<form action="" method="post" class="ui form">-->
+                    <!--{% csrf_token %}-->
+                    <!--{{ form.as_p }}-->
+                    <!--<div class="actions">-->
+                        <!--<button type="submit" class="ui positive right labeled icon button">-->
+                            <!--ویرایش-->
+                            <!--<i class="checkmark icon"></i>-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</form>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+
+    <!--<div class="ui segment vazir">-->
+        <!--{% if confirm %}-->
+            <!--<div class="ui green message vazir">تغییرات با موفقیت انجام شد</div>-->
+        <!--{% endif %}-->
+        <!--<div class="ui grid">-->
+            <!--<div class="row">-->
+                <!--<div class="sixteen wide column">-->
+                    <!--<table class="ui table">-->
+                        <!--<tbody>-->
+                        <!--<tr>-->
+                            <!--<td>عنوان :</td>-->
+                            <!--<td>{{ book.title }}</td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td>موضوع :</td>-->
+                            <!--<td>{{ book.subject }}</td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td>نویسنده :</td>-->
+                            <!--<td>{{ book.author }}</td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td>موجود / ناموجود :</td>-->
+                            <!--<td>{{ book.available }}</td>-->
+                        <!--</tr>-->
+                        <!--</tbody>-->
+                    <!--</table>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+<!--{% endblock content %}-->
+
+<!--{% block scripts %}-->
+    <!--<script>-->
+        <!--$(document).ready(function () {-->
+            <!--$('#modal-btn').click(function () {-->
+                <!--$('.ui.modal')-->
+                    <!--.modal('show')-->
+                <!--;-->
+            <!--})-->
+        <!--})-->
+    <!--</script>-->
+<!--{% endblock scripts %}-->
