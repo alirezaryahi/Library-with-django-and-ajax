@@ -74,6 +74,19 @@ class HomeView(generic.ListView):
         return data
 
 
+class BookView(generic.ListView):
+    model = Book
+    template_name = 'main.html'
+    paginate_by = 8
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        data = super().get_context_data(**kwargs)
+        title = self.kwargs['title'].replace('-', ' ')
+        books = Book.objects.filter(subject__title=title)
+        data['page_obj'] = books
+        return data
+
+
 def book(request, *args, **kwargs):
     title = kwargs['title'].replace('-', ' ')
     books = Book.objects.filter(subject__title=title)
@@ -119,10 +132,68 @@ def autocomplete(request):
     return HttpResponse(data, mimetype)
 
 
+def pro_search(request):
+    if request.is_ajax():
+        subjects = Subject.objects.all()
+        subject_list = []
+        for subject in subjects:
+            subject_list.append(subject.title)
+        authors = Author.objects.all()
+        author_list = []
+        for author in authors:
+            author_list.append(author.name)
+        data = {'subjects': subject_list, 'authors': author_list}
+        data = json.dumps(data)
+    else:
+        data = 'fail'
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+
+def pro_search_done(request):
+    if request.is_ajax():
+        subject = request.GET.get('subject', '')
+        author = request.GET.get('author', '')
+        exist = request.GET.get('exist', '')
+        if exist == 'all' and author == 'all' and subject == 'all':
+            books = Book.objects.all()
+        elif exist == 'all' and author != 'all' and subject != 'all':
+            books = Book.objects.filter(Q(subject__title=subject) & Q(author__name=author))
+        elif exist == 'all' and author == 'all' and subject != 'all':
+            books = Book.objects.filter(Q(subject__title=subject))
+        elif exist != 'all' and author == 'all' and subject != 'all':
+            books = Book.objects.filter(Q(subject__title=subject) & Q(available=exist))
+        elif exist != 'all' and author != 'all' and subject == 'all':
+            books = Book.objects.filter(Q(available=exist) & Q(author__name=author))
+        elif exist != 'all' and author == 'all' and subject == 'all':
+            books = Book.objects.filter(Q(available=exist))
+        elif exist == 'all' and author != 'all' and subject == 'all':
+            books = Book.objects.filter(Q(author__name=author))
+        else:
+            books = Book.objects.filter(Q(subject__title=subject) & Q(author__name=author) & Q(available=exist))
+        book_list = []
+        book_detail = []
+        for book in books:
+            subjectt = Subject.objects.get(id=book.subject_id)
+            authorr = Author.objects.get(id=book.author_id)
+            book_detail.append(book.id)
+            book_detail.append(book.title)
+            book_detail.append(subjectt.title)
+            book_detail.append(authorr.name)
+            book_detail.append(book.available)
+            book_list.append(book_detail)
+            book_detail = []
+        data = {'books': book_list}
+        data = json.dumps(data)
+    else:
+        data = 'fail'
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+
 def book_update(request):
     if request.is_ajax():
         book_id = request.GET.get('query', '')
-        print(book_id)
         book = Book.objects.get(id=book_id)
         subjectt = Subject.objects.get(id=book.subject_id)
         authorr = Author.objects.get(id=book.author_id)
@@ -166,7 +237,7 @@ def book_update_done(request):
         for authorr in authors:
             authorr.books.remove(book)
             authorr.save()
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         subjectClass.books.add(book)  # add book to subject
         authorClass.books.add(book)  # add book to author
         book.title = title
@@ -197,39 +268,45 @@ def book_delete(request):
 
 
 def book_delete_done(request):
-    if request.is_ajax():
-        book_id = request.POST.get('id', '')
-        book = Book.objects.get(id=book_id)
-        book.delete()
-        data = {'done': 'done'}
-        data = json.dumps(data)
+    if request.user.is_superuser:
+        if request.is_ajax():
+            book_id = request.POST.get('id', '')
+            book = Book.objects.get(id=book_id)
+            book.delete()
+            data = {'done': 'done'}
+            data = json.dumps(data)
+        else:
+            data = 'fail'
+        mimetype = 'application/json'
+        return HttpResponse(data, mimetype)
     else:
-        data = 'fail'
-    mimetype = 'application/json'
-    return HttpResponse(data, mimetype)
+        return redirect('/')
 
 
 def add_book(request):
-    form = BookForm(request.POST or None)
-    error = ''
-    if form.is_valid():
-        title = form.cleaned_data.get('title')
-        subject = form.cleaned_data.get('subject')
-        author = form.cleaned_data.get('author')
-        if subject == None or author == None:
-            error = 'تمام موارد باید پر شود'
-        else:
-            Book.objects.create(title=title, subject=subject, author=author)
-            book = Book.objects.get(title=title)
-            author = Author.objects.get(name=author)
-            subject = Subject.objects.get(title=subject)
-            author.books.add(book.id)
-            subject.books.add(book.id)
-            author.save()
-            subject.save()
-            return redirect('/')
-    context = {
-        'form': form,
-        'error': error
-    }
-    return render(request, 'add-book.html', context)
+    if request.user.is_superuser:
+        form = BookForm(request.POST or None)
+        error = ''
+        if form.is_valid():
+            title = form.cleaned_data.get('title')
+            subject = form.cleaned_data.get('subject')
+            author = form.cleaned_data.get('author')
+            if subject == None or author == None:
+                error = 'تمام موارد باید پر شود'
+            else:
+                Book.objects.create(title=title, subject=subject, author=author)
+                book = Book.objects.get(title=title)
+                author = Author.objects.get(name=author)
+                subject = Subject.objects.get(title=subject)
+                author.books.add(book.id)
+                subject.books.add(book.id)
+                author.save()
+                subject.save()
+                return redirect('/')
+        context = {
+            'form': form,
+            'error': error
+        }
+        return render(request, 'add-book.html', context)
+    else:
+        return redirect('/')

@@ -71,12 +71,40 @@
     </div>
 </div>
 
+<!-------------------------------------use filter for search------------------------------->
+
+{% if request.path == '/' %}
+<div class="bg-light mt-3 mb-3 p-3 direction d-flex vazir">
+    <h3 class="vazir pt-1">جستجو بر اساس : </h3>
+    <div class="mr-5">
+        <select class="form-control vazir" name="" id="search-subject" onchange="pro_search_done()">
+            <option selected value="all">همه موضوعات</option>
+        </select>
+    </div>
+    <div class="mr-5">
+        <select class="form-control vazir" name="" id="search-author" onchange="pro_search_done()">
+            <option selected value="all">همه نویسندگان</option>
+        </select>
+    </div>
+    <div class="mr-5">
+        <select class="form-control vazir" name="" id="search-exist" onchange="pro_search_done()">
+            <option selected value="all">همه</option>
+            <option value="True">موجود</option>
+            <option value="False">ناموجود</option>
+        </select>
+    </div>
+</div>
+{% endif %}
+
+<!----------------------------------------------------------------------------------------->
 
 <table class="ui celled table">
     <thead>
     {% if books or page_obj or subjects %}
     <tr>
-        <th class="border-left text-center">شماره شناسه</th>
+        <th class="border-left text-center">شماره شناسه
+
+        </th>
         <th>عنوان</th>
         <th>موضوع</th>
         <th>نویسنده</th>
@@ -150,8 +178,8 @@
     </tbody>
 </table>
 
-{% if page_obj %}
-<div class="d-flex vazir">
+{% if page_obj and page_obj.number %}
+<div class="d-flex vazir pagination">
     <div class="col-sm-12 text-center">
         <ul class="pagination w-25 mr-auto ml-auto pl-5">
             {% if page_obj.has_previous %}
@@ -185,13 +213,58 @@
 
 {% block scripts %}
 <script>
+    //---------------------search filter -------------------------------------------------
+    $(document).ready(function () {
+        $.ajax({
+            url: '/pro-search',
+            data: {},
+            type: 'GET',
+            success: function (res) {
+                for (let i = 0; i < res.subjects.length; i++) {
+                    $("#search-subject").append(new Option(res.subjects[i], res.subjects[i]));
+                }
+                for (let i = 0; i < res.authors.length; i++) {
+                    $("#search-author").append(new Option(res.authors[i], res.authors[i]));
+                }
+                $('#search-subject option:selected').text('همه موضوعات')
+                $('#search-author option:selected').text('همه نویسندگان')
+            }
+        });
+    })
+
+    function pro_search_done() {
+        let subject = $('#search-subject option:selected').val()
+        let author = $('#search-author option:selected').val()
+        let exist = $('#search-exist option:selected').val()
+
+        $.ajax({
+            url: '/pro-search-done',
+            data: {'subject': subject, 'author': author, 'exist': exist},
+            type: 'GET',
+            success: function (res) {
+                console.log(res)
+                $('table.celled thead th:last-child').hide()
+                if (res.books.length < 8) {
+                    $('.pagination').hide()
+                }
+                $('table.celled tbody').empty()
+                for (let i = 0; i < res.books.length; i++) {
+                    $('table.celled tbody').append(`<tr> <td class="text-center border-left">${res.books[i][0]}</td>
+                                                    <td>${res.books[i][1]}</td> <td>${res.books[i][2]}</td> <td>${res.books[i][3]}</td>
+                                                    <td class="text-center"><i class="${res.books[i][4] == true ? 'check icon' : 'x text-danger icon'}" ></i></td> </tr>`)
+                }
+            }
+        });
+    }
+
+    //------------------------------------------------------------------------------------
+
     // ---------------------get data to show in update form ------------------------------
 
     $('.btn.btn-warning').click(function () {
         let book_id = $(this).attr('name');
-        console.log(book_id)
         $.ajax({
-            url: 'book-update',
+            url: '/book-update',
             data: {'query': book_id},
             type: 'GET',
             success: function (res) {
@@ -207,8 +280,8 @@
                 for (let i = 0; i < res.authors.length; i++) {
                     $("#author").append(new Option(res.authors[i], res.authors[i]));
                 }
-                $("#subject").find(`option[value="${res.subject}"]`).attr("selected",true);
-                $("#author").find(`option[value="${res.author}"]`).attr("selected",true);
+                $("#subject").find(`option[value="${res.subject}"]`).attr("selected", true);
+                $("#author").find(`option[value="${res.author}"]`).attr("selected", true);
                 if (res.available == true) {
                     $('#available').prop('checked', true);
                 } else {
@@ -233,7 +306,7 @@
         let available = $("input[type='checkbox']").prop('checked');
         console.log(id)
         $.ajax({
-            url: 'book-update-done',
+            url: '/book-update-done',
             data: {
                 'id': id,
                 'title': title,
@@ -270,7 +343,7 @@
     $('.btn.btn-danger').click(function () {
         let book_id = $(this).attr('name');
         $.ajax({
-            url: 'book-delete',
+            url: '/book-delete',
             data: {'query': book_id},
             type: 'GET',
             success: function (res) {
@@ -289,7 +362,7 @@
         let id = $('#id').val()
         let token = '{{csrf_token}}'
         $.ajax({
-            url: 'book-delete_done',
+            url: '/book-delete_done',
             data: {'id': id, csrfmiddlewaretoken: token},
             type: 'POST',
             success: function (res) {

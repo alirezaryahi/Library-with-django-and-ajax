@@ -13,7 +13,7 @@
     {% if error != '' %}
     <div class="alert alert-danger text-center mt-5"><b class="vazir">{{error}}</b></div>
     {% endif %}
-    <form action="" method="post" class="direction w-50 mr-auto ml-auto mt-5 p-4 border vazir text-right">
+    <form action="" method="post" class="direction w-50 mr-auto ml-auto mt-5 p-4 border vazir text-right bg-light">
         <h1 class="vazir text-center">فرم افزودن کتاب</h1>
         {% csrf_token %}
         {{form}}
