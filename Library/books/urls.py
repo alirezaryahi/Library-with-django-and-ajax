@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import book, author, author_detail, HomeView, search, autocomplete, book_update, book_delete, \
-    book_update_done, book_delete_done, add_book, BookView, pro_search, pro_search_done
+    book_update_done, book_delete_done, add_book, BookView, pro_search, pro_search_done, favorite, favorite_page
 
 urlpatterns = [
     # path('', home, name='home'),
@@ -13,6 +13,8 @@ urlpatterns = [
     path('detail/<name>', author_detail, name='author-detail'),
     # path('books/<title>', book, name='book'),
     path('book-update', book_update, name='book-update'),
+    path('favorite', favorite, name='favorite'),
+    path('favorite-page', favorite_page, name='favorite-page'),
     path('book-update-done', book_update_done, name='book-update-done'),
     path('book-delete', book_delete, name='book-delete'),
     path('book-delete_done', book_delete_done, name='book-delete_done'),

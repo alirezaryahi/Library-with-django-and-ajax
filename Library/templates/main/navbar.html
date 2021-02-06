@@ -42,9 +42,14 @@
         </a>
     </div>
     {% elif user.is_authenticated and not user.is_superuser %}
-    <div class="right menu">
+    <div class="menu">
         <a href="{% url 'order-status' %}" class="item">
             <b>وضعیت</b>
+        </a>
+    </div>
+    <div class="right menu border-right">
+        <a href="{% url 'favorite-page' %}" class="item">
+            <b>لیست علاقه مندی</b>
         </a>
     </div>
     {% endif %}
@@ -83,7 +88,7 @@
     function searchOpen() {
         let value = $('#id_input').val();
         $.ajax({
-            url: 'autocomplete-search',
+            url: '/autocomplete-search',
             data: {'query': value},
             type: 'GET',
             success: function (response) {

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -9,6 +10,7 @@ class Book(models.Model):
     subject = models.ForeignKey('Subject', on_delete=models.CASCADE, blank=True, null=True)
     author = models.ForeignKey('Author', on_delete=models.CASCADE, blank=True, null=True)
     available = models.BooleanField(default=True)
+    favorite = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return self.title

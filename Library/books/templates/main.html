@@ -22,6 +22,15 @@
         height: 40px;
         width: 80px;
     }
+
+    .w-30 {
+        width: 30px;
+    }
+
+    .heart {
+        font-size: 20px !important;
+        cursor: pointer;
+    }
 </style>
 {% endblock %}
 
@@ -102,7 +111,7 @@
     <thead>
     {% if books or page_obj or subjects %}
     <tr>
-        <th class="border-left text-center">شماره شناسه
+        <th class="border-left text-center w-30">شماره شناسه
 
         </th>
         <th>عنوان</th>
@@ -128,7 +137,13 @@
     {% for book in page_obj %}
     <tr id="row{{book.id}}">
         <td class="text-center border-left">{{book.id}}</td>
-        <td id="title{{book.id}}">{{book.title}}</td>
+        <td id="title{{book.id}}">{{book.title}} {% if request.user.is_authenticated and not request.user.is_superuser%}
+            <div class="float-left text-center"><i
+                    class="heart {% if not request.user in book.favorite.all %}outline{% endif %} icon text-danger"
+                    id="{{book.id}}"></i>
+                <p>علاقه مندی</p></div>
+            {% endif %}
+        </td>
         <td id="subject{{book.id}}">{{book.subject}}</td>
         <td id="author{{book.id}}">{{book.author}}</td>
         <td class="text-center">
@@ -152,7 +167,13 @@
     {% for book in books %}
     <tr>
         <td class="text-center border-left">{{book.id}}</td>
-        <td>{{book.title}}</td>
+        <td>{{book.title}} {% if request.user.is_authenticated and not request.user.is_superuser%}
+            <div class="float-left text-center"><i
+                    class="heart {% if not request.user in book.favorite.all %}outline{% endif %} icon text-danger"
+                    id="uncheck{{book.id}}"></i>
+                <p>علاقه مندی</p></div>
+            {% endif %}
+        </td>
         <td>{{book.subject}}</td>
         <td>{{book.author}}</td>
         <td class="text-center">
@@ -177,6 +198,7 @@
     {% endif %}
     </tbody>
 </table>
+
 
 {% if page_obj and page_obj.number %}
 <div class="d-flex vazir pagination">
@@ -256,6 +278,40 @@
             }
         });
     }
+
+    //------------------------------------------------------------------------------------
+
+    //-----------------------------add to favorite-----------------------------------------
+
+    $('.heart').click(function () {
+        if (window.location.pathname == '/favorite-page') {
+            let uncheck_book_id = $(this).attr('id')
+            uncheck_book_id=uncheck_book_id.slice(7, 8)
+            $.ajax({
+                url: '/favorite',
+                data: {'id': uncheck_book_id},
+                type: 'GET',
+                success: function (res) {
+                    $(`#uncheck${uncheck_book_id}`).parents('tr').remove();
+                }
+            })
+        } else {
+            let book_id = $(this).attr('id')
+            $.ajax({
+                url: '/favorite',
+                data: {'id': book_id},
+                type: 'GET',
+                success: function (res) {
+                    console.log(res)
+                    if ($(`#${book_id}`).hasClass('outline')) {
+                        $(`#${book_id}`).removeClass('outline')
+                    } else {
+                        $(`#${book_id}`).addClass('outline')
+                    }
+                }
+            })
+        }
+    })
 
     //------------------------------------------------------------------------------------
 

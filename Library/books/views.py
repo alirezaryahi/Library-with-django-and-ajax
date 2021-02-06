@@ -47,23 +47,24 @@ class HomeView(generic.ListView):
     template_name = 'main.html'
     paginate_by = 8
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        data = super().get_context_data(**kwargs)
-        borrows = Borrow.objects.all()
+    def get_queryset(self):
         books = Book.objects.all()
+        borrows = Borrow.objects.all()
         items = []
-        # --------Erasing a trust that is out of date-----------------
+        # --------Erasing a borrow that is out of date-----------------
         time = []
         for borrow in borrows:
             items.append(borrow)
             time.append(borrow.bring)
+
         for item in time:
+            borrow = Borrow.objects.get(bring=item)
+            book = Book.objects.get(id=borrow.book_id)
             if item < timezone.now():
-                borrow = Borrow.objects.get(bring=item)
-                book = Book.objects.get(id=borrow.book_id)
+                borrow.delete()
                 book.available = True
                 book.save()
-                borrow.delete()
+                return books
         # -----------------------------------------------------------
         if len(items):
             for item in items:
@@ -71,6 +72,10 @@ class HomeView(generic.ListView):
                     if book.id == item.book_id:
                         book.available = False
                         book.save()
+        return books
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        data = super().get_context_data(**kwargs)
         return data
 
 
@@ -308,5 +313,32 @@ def add_book(request):
             'error': error
         }
         return render(request, 'add-book.html', context)
+    else:
+        return redirect('/')
+
+
+def favorite(request):
+    if request.is_ajax():
+        book_id = request.GET.get('id', '')
+        book = Book.objects.get(id=book_id)
+        if request.user in book.favorite.all():
+            book.favorite.remove(request.user)
+            book.save()
+        else:
+            book.favorite.add(request.user)
+            book.save()
+        message = 'done'
+        return HttpResponse(message)
+
+
+def favorite_page(request):
+    if not request.user.is_superuser and request.user.is_authenticated:
+        books = Book.objects.all()
+        list = []
+        for book in books:
+            if request.user in book.favorite.all():
+                list.append(book)
+        context = {'books': list}
+        return render(request, 'main.html', context)
     else:
         return redirect('/')
