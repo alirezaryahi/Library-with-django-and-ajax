@@ -265,7 +265,7 @@
             type: 'GET',
             success: function (res) {
                 console.log(res)
-                $('table.celled thead th:last-child').hide()
+                $('table.celled thead th:nth-child(6)').hide()
                 if (res.books.length < 8) {
                     $('.pagination').hide()
                 }
